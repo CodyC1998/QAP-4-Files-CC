@@ -6,6 +6,8 @@
 # Define required libraries.
 import datetime
 import FormatValues as FV
+import sys
+import time 
 
 
 # Define program constants.
@@ -24,6 +26,32 @@ with open("Const.dat", 'r') as f:
 
 # Define program functions.
 
+def Ext_Costs(NumCars, ExtLiability, GlassCover, LoanCar, EXT_LIAB_COST, GLASS_COV_COST, LOANER_COST):
+    # calculate the extra costs
+    ExtLiabFee = 0
+    if ExtLiability == "Y":
+        ExtLiabFee = EXT_LIAB_COST * NumCars
+    
+    GlassCovFee = 0
+    if GlassCover == "Y":
+        GlassCovFee = GLASS_COV_COST * NumCars
+
+    LoanerFee = 0
+    if LoanCar == "Y":
+        LoanerFee = LOANER_COST * NumCars
+    
+    TotExtCost = ExtLiabFee + GlassCovFee + LoanerFee
+
+    return TotExtCost
+
+def ProgressBar(iteration, total, prefix='', suffix='', length=30, fill='█'):
+    # Generate and display a progress bar with % complete at the end.
+ 
+    percent = ("{0:.1f}").format(100 * (iteration / float(total)))
+    filled_length = int(length * iteration // total)
+    bar = fill * filled_length + '-' * (length - filled_length)
+    sys.stdout.write(f'\r{prefix} |{bar}| {percent}% {suffix}')
+    sys.stdout.flush()
 
 
 # Main program starts here.
@@ -119,22 +147,138 @@ while True:
     
     PayMethodLst = ["Full", "Monthly", "Down Pay"]
     while True:
-        PayMethod = input("Enter the payment method(Full, Monthly, or Down): ").title()
+        PayMethod = input("Enter the payment method(Full, Monthly, or Down pay): ").title()
         if PayMethod == "":
             print("ERROR - Payment method cannot be blank.")
         elif PayMethod not in PayMethodLst:
             print("ERROR - Payment method not valid.")
-        elif PayMethod == "Down Pay":
-            DownPayAmt = float(input("Enter the down payment amount: "))
         else:
             break
+    if PayMethod == "Down Pay":
+        DownPayAmt = float(input("Enter the down payment amount: "))
 
+    # Perform required calculations
+
+    if NumCars == 0:
+        PremCost = BASIC_PREMIUM
+    else:
+        PremCost = BASIC_PREMIUM + ((NumCars * BASIC_PREMIUM) * ADD_CARS_DISC)
+
+    TotExtCost = Ext_Costs(NumCars, ExtLiability, GlassCover, LoanCar, EXT_LIAB_COST, GLASS_COV_COST, LOANER_COST)
+
+    TotPrem = PremCost + TotExtCost
+
+    HSTCost = TotPrem * HST_RATE
+
+    TotCost = TotPrem + HSTCost
+
+    MonPay = (TotCost + PROC_FEE) / 8
+    if PayMethod == "Down Pay":
+        MonPay = ((TotCost - DownPayAmt) + PROC_FEE) / 8
+
+    InvDate = datetime.datetime.now()
+    InvDateDsp = FV.FDateS(InvDate)
     
 
-    
+    FirstPayYear = InvDate.year
+    FirstPayMonth = InvDate.month
+    FirstPayDay = 1
+
+    FirstPayDate = datetime.date(FirstPayYear, FirstPayMonth + 1, FirstPayDay)
     
 
+    # display results
+    FullName = CustFName + " " + CustLName
+    if ExtLiability == "Y":
+        ExtLiability = "YES"
+    else: 
+        ExtLiability = "NO"
+    if GlassCover == "Y":
+        GlassCover = "YES"
+    else: 
+        GlassCover = "NO"
+    if LoanCar == "Y":
+        LoanCar = "YES"
+    else:
+        LoanCar = "NO"
+    CustPhDsp = "(" + CustPhone[0:3] + ")" + CustPhone[3:6] + "-" + CustPhone[6:]
+
+    print()
+ 
+    TotalIterations = 30 
+    Message = "Saving Claim Data ..."
+ 
+    for i in range(TotalIterations + 1):
+        time.sleep(0.1)  
+        ProgressBar(i, TotalIterations, prefix=Message, suffix='Complete', length=50)
+ 
+    print()
+
+    f = open("Policies.dat", "r")
+
+    print()
+    print(f"                     One Stop Insurance Company")
+    print(f"                         New Policy Receipt")
+    print(f"====================================================================")
+    print(f"Customer name: {FullName:<20s}")
+    print(f"Address:       {CustStAdd:<20s}") 
+    print(f"               {CustCity}, {CustProv:<2s} {CustPostCode:<9s}")
+    print(f"Phone:         {CustPhDsp}")
+    print(f"Policy number: {PolicyNum:<4d}")
+    print(f"--------------------------------------------------------------------")
+    print(f"Number of cars to insure: {NumCars:<2d}")
+    print(f"Extra liability:          {ExtLiability:<3s}")
+    print(f"Glass coverage:           {GlassCover:<3s}")
+    print(f"Loaner car:               {LoanCar:<3s}")
+    print(f"Payment method:           {PayMethod:<8s}")
+    print(f"--------------------------------------------------------------------")
+    print(f"Premium cost:       {FV.FDollar2(PremCost):<9s}")
+    print(f"Extra costs:        {FV.FDollar2(TotExtCost):<9s}")
+    print(f"--------------------------------------------------------------------")
+    print(f"Total premium cost: {FV.FDollar2(TotPrem):<9s}")
+    print(f"HST:                {FV.FDollar2(HSTCost):<7s}")
+    print(f"Total cost:         {FV.FDollar2(TotCost):<9s}")
+    print(f"Montly payment:     {FV.FDollar2(MonPay):<9s}")
+    print(f"--------------------------------------------------------------------")
+    print(f"First payment due: {FirstPayDate}")
+    print(f"====================================================================")
+    print()
+    print(f"Previous policies:")
+    print(f"Policy #         Date         Total cost")
+    print(f"----------------------------------------")
+    for Policies in f:
+
+        # read the record and grab values.
+        PolicyLst = Policies.split(",")
+        PolicyNumOld = PolicyLst[0].strip()
+        InvDateOld = PolicyLst[1].strip()
+        TotCostOld = PolicyLst[2].strip()
+
+
+        print(f"{PolicyNumOld:<4s}          {InvDateOld:<10s}      ${TotCostOld:<9s}\n")
+         
+    f.close()
+
+    # increment policy number
+
+    PolicyNum += 1
+
+
+    # write data to file
+    f = open("Policies.dat", "a")
+    f.write(f"{PolicyNum}, {InvDateDsp}, {TotCost}\n")
+    f.close()
 
 
 
 # Any housekeeping duties at the end of the program.
+    print()
+    Continue = input("Would you like to enter another policy? (Y/N): ").upper()
+    if Continue == "N":
+        break
+    print()
+
+# update the constants file
+f = open("Const.dat", "w")
+f.write(f"{PolicyNum}, {BASIC_PREMIUM}, {ADD_CARS_DISC}, {EXT_LIAB_COST}, {GLASS_COV_COST}, {LOANER_COST}, {HST_RATE}, {PROC_FEE} \n")
+f.close()
