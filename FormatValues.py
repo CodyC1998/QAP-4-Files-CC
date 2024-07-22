@@ -77,3 +77,10 @@ def FDateL(DateValue):
 
     return DateValueStr
 
+# Function added for QAP 4
+def FPhone(PhoneValue):
+    # Function will accept a value and format it to (###)###-####.
+
+    PhoneValueStr = "(" + PhoneValue[0:3] + ")" + PhoneValue[3:6] + "-" + PhoneValue[6:]
+
+    return PhoneValueStr

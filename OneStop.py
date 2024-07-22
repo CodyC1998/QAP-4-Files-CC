@@ -59,28 +59,36 @@ while True:
     while True:
         CustFName = input("Enter the customer's first name: ").title()
         if CustFName == "":
+            print()
             print("ERROR - First name cannot be blank.")
+            print()
         else:
             break
 
     while True:
         CustLName = input("Enter the customer's last name: ").title()
         if CustLName == "":
+            print()
             print("ERROR - Last name cannot be blank.")
+            print()
         else:
             break
 
     while True:
         CustStAdd = input("Enter the customer's street address: ")
         if CustStAdd == "":
+            print()
             print("ERROR - Street address cannot be blank.")
+            print()
         else:
             break
 
     while True:
         CustCity = input("Enter the customer's city: ").title()
         if CustCity == "":
+            print()
             print("ERROR - City cannot be blank.")
+            print()
         else:
             break
     
@@ -88,20 +96,30 @@ while True:
     while True:
         CustProv = input("Enter the customer's province(NL, NS, PE, NB): ").upper()
         if CustProv == "":
+            print()
             print("ERROR - Province cannot be blank.")
+            print()
         elif len(CustProv) != 2:
+            print()
             print("ERROR - Province must be 2 characters.")
+            print()
         elif CustProv not in ProvLst:
+            print()
             print("ERROR - Province not valid.")
+            print()
         else:
             break
 
     while True:
         CustPostCode = input("Enter the customer's postal code(X9X9X9): ")
         if CustPostCode == "":
+            print()
             print("ERROR - Postal code cannot be blank.")
+            print()
         elif len(CustPostCode) != 6:
+            print()
             print("ERROR - Postal code must be 6 characters.")
+            print()
         else:
             break
     
@@ -109,39 +127,53 @@ while True:
     while True:
         CustPhone = input("Enter the customer's phone number(9999999999): ")
         if CustPhone == "":
+            print()
             print("ERROR - Phone number cannot be blank.")
+            print()
         elif len(CustPhone) != 10:
+            print()
             print("ERROR - Phone number must be 10 characters.")
+            print()
         elif set(CustPhone).issubset(allowed_char1) == False:
+            print()
             print("ERROR - Phone number must contain only numbers.")
+            print()
         else:
             break
     
     while True:
         NumCars = int(input("Enter the number of cars being insured: "))
         if NumCars <= 0:
+            print()
             print("ERROR - Number of cars must be a positive integer.")
+            print()
         else:
             break
     
     while True:
         ExtLiability = input("Does the customer require extra liabililty up to $1,000,000(Y/N): ").upper()
         if ExtLiability == "":
+            print()
             print("ERROR - Response cannot be blank.")
+            print()
         else:
             break
     
     while True:
         GlassCover = input("Does the customer require glass coverage(Y/N): ").upper()
         if GlassCover == "":
+            print()
             print("ERROR - Response cannot be blank.")
+            print()
         else:
             break
 
     while True:
         LoanCar = input("Does the customer require a loaner car(Y/N): ").upper()
         if LoanCar == "":
+            print()
             print("ERROR - Response cannot be blank.")
+            print()
         else:
             break
     
@@ -149,9 +181,13 @@ while True:
     while True:
         PayMethod = input("Enter the payment method(Full, Monthly, or Down pay): ").title()
         if PayMethod == "":
+            print()
             print("ERROR - Payment method cannot be blank.")
+            print()
         elif PayMethod not in PayMethodLst:
+            print()
             print("ERROR - Payment method not valid.")
+            print()
         else:
             break
     if PayMethod == "Down Pay":
@@ -201,7 +237,8 @@ while True:
         LoanCar = "YES"
     else:
         LoanCar = "NO"
-    CustPhDsp = "(" + CustPhone[0:3] + ")" + CustPhone[3:6] + "-" + CustPhone[6:]
+
+    CustPhDsp = FV.FPhone(CustPhone)
 
     print()
  
@@ -259,6 +296,8 @@ while True:
          
     f.close()
 
+    print(f"====================================================================")
+    print()
     # increment policy number
 
     PolicyNum += 1
